@@ -11,7 +11,7 @@ import { NotFoundException } from "../exceptions/not-found";
 
 export const signup = async(req: Request, res: Response,next:NextFunction)=>{
   SignupSchema.parse(req.body);
-  const { username, email, password } = req.body;
+  const { username, email, phone, password } = req.body;
   let user = await prismaClient.user.findFirst({ where: { email } });
   if (user) {
     
@@ -25,6 +25,7 @@ export const signup = async(req: Request, res: Response,next:NextFunction)=>{
     data: {
       username,
       email,
+      phone,
       password: hashSync(password, 10),
     },
   });

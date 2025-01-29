@@ -13,13 +13,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role{
+  ADMIN
+  USER
+}
+
 model User{
   id         String   @id @default(uuid())
   username   String   
   email      String   @unique
+  phone      String   @unique
   password   String  
+  role       Role      @default(USER)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now())
 
   @@map("users")
+}
+
+model Product{
+  id          String   @id @default(uuid())
+  name        String   
+  description String    @db.Text
+  price       Float   
+  tags        String    
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+
+  @@map("products")
 }
