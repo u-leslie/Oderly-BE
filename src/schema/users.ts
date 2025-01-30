@@ -6,3 +6,11 @@ export const SignupSchema = z.object({
   phone: z.string().min(11),
   password: z.string().min(4),
 });
+
+export const AddressSchema = z.object({
+    street: z.string(),
+    country : z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string().min(4),
+})
