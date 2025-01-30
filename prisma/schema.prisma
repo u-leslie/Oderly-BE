@@ -25,6 +25,8 @@ model User{
   phone      String   @unique
   password   String  
   role       Role      @default(USER)
+  billingAddressId String?
+  shippingAddressId String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now())
   addresses  Address[]
