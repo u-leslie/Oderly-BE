@@ -30,6 +30,7 @@ model User{
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now())
   addresses  Address[]
+  cartItems  CartItem[]
 
   @@map("users")
 }
@@ -45,6 +46,7 @@ model Address{
   zipCode      String   
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @default(now())
+
 }
 
 model Product{
@@ -55,6 +57,20 @@ model Product{
   tags        String    
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now())
+  cartItems  CartItem[]
 
   @@map("products")
+}
+
+model CartItem{
+  id        String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields:[userId],references:[id])
+  productId   String
+  product     Product    @relation(fields:[productId],references:[id])
+  quantity    Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
+
+  @@map("cart_items")
 }
