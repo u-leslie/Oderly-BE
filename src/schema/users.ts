@@ -20,3 +20,7 @@ export const UpdatedUserSchema = z.object({
     billingAddress: z.string().optional(),
     shippingAddress: z.string().optional(),
 })
+
+export const UpdateRoleSchema = z.object({
+    role: z.string(),
+})
