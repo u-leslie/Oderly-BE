@@ -7,6 +7,6 @@ const authRoutes: Router = Router();
 
 authRoutes.post("/signup", errorHandler(signup));
 authRoutes.post("/login", errorHandler(login));
-authRoutes.get("/profile", [authMiddleware], errorHandler(profile));
+authRoutes.get("/profile", authMiddleware, errorHandler(profile));
 
 export default authRoutes;

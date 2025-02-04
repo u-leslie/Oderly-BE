@@ -10,7 +10,7 @@ import { NotFoundException } from "../exceptions/not-found";
 
 /**
  * @swagger
- * auth/signup:
+ * /auth/signup:
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]
@@ -30,6 +30,11 @@ import { NotFoundException } from "../exceptions/not-found";
  *               phone:
  *                 type: string
  *                 example: "+1234567890"
+ *               role:
+ *                 type: string
+ *                 enum: [USER, ADMIN]  
+ *                 default: USER        
+ *                 example: USER
  *               password:
  *                 type: string
  *                 example: "securepassword"
@@ -73,7 +78,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
 
 /**
  * @swagger
- * auth/login:
+ * /auth/login:
  *   post:
  *     summary: Authenticate user and return JWT
  *     tags: [Auth]
@@ -136,7 +141,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 /**
  * @swagger
- * auth/profile:
+ * /auth/profile:
  *   get:
  *     summary: Get authenticated user's profile
  *     tags: [Auth]

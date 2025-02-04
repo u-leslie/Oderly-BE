@@ -5,25 +5,45 @@ import * as jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../secrets';
 import { prismaClient } from '..';
 
-const authMiddleware = async(req:Request, res:Response, next:NextFunction)=>{
-  const token = req.headers.authorization;
 
-  if (!token) {
-    next(new UnauthorizedException("Unauthorized", ErrorCodes.UNAUTHORIZED));
+const authMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("Headers received:", req.headers);
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next(
+      new UnauthorizedException("Unauthorized", ErrorCodes.UNAUTHORIZED)
+    );
   }
+
+  const token = authHeader.split(" ")[1];
+
   try {
-    const payload = jwt.verify(token as string, JWT_SECRET) as any;
+    const payload = jwt.verify(token, JWT_SECRET) as any;
+
     const user = await prismaClient.user.findFirst({
       where: { id: payload.id },
     });
+
     if (user) {
       req.user = user;
-      next();
+      return next();
     } else {
-      next(new UnauthorizedException("Unauthorized", ErrorCodes.UNAUTHORIZED));
+      return next(
+        new UnauthorizedException("Unauthorized", ErrorCodes.UNAUTHORIZED)
+      );
     }
   } catch (error) {
-    next(new UnauthorizedException("Unauthorized", ErrorCodes.UNAUTHORIZED));
+    return next(
+      new UnauthorizedException("Unauthorized", ErrorCodes.UNAUTHORIZED)
+    );
   }
-}
+};
+
+
+
 export default authMiddleware;

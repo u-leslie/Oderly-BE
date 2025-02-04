@@ -19,7 +19,7 @@ orderRoutes.get("/getAll", [authMiddleware], errorHandler(getOrders));
 orderRoutes.get("/get/:id", [authMiddleware], errorHandler(getOrderById));
 orderRoutes.delete("/:id/cancel", [authMiddleware], errorHandler(cancelOrder));
 orderRoutes.get(
-  "index",
+  "/",
   [authMiddleware, adminMiddleware],
   errorHandler(listAllOrders)
 );

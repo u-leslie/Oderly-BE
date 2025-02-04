@@ -2,7 +2,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
 
-// Swagger definition
+
 const swaggerDefinition = {
   openapi: "3.0.0",
   info: {
@@ -12,8 +12,22 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: "http://localhost:3000", 
+      url: "http://localhost:3000/api/v1",
       description: "Local server",
+    },
+  ],
+  components: {
+    securitySchemes: {
+      BearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT", 
+      },
+    },
+  },
+  security: [
+    {
+      bearerAuth: [],
     },
   ],
 };
