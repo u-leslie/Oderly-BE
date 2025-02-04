@@ -10,6 +10,8 @@ import { ErrorCodes } from "../exceptions/root";
  *     tags: [Order]
  *     summary: Create an order
  *     description: Creates an order for a user by processing the items in their cart.
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Order placed successfully.
@@ -45,6 +47,8 @@ export const createOrder = async (req: Request, res: Response) => {
  *     tags: [Order]
  *     summary: Get all orders for a user
  *     description: Retrieves all orders placed by the user.
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of orders for the user.
@@ -85,6 +89,8 @@ export const getOrders = async (req: Request, res: Response) => {
  *         description: The ID of the order to cancel.
  *         schema:
  *           type: string
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Order cancelled successfully.
@@ -111,6 +117,8 @@ export const cancelOrder = async (req: Request, res: Response) => {
  *         description: The ID of the order to retrieve.
  *         schema:
  *           type: string
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Order details.
@@ -142,7 +150,9 @@ export const getOrderById = async (req: Request, res: Response) => {
  *         description: Filter orders by their status.
  *         schema:
  *           type: string
- *           enum: [pending, completed, cancelled]
+ *           enum: [pending, delivered, cancelled]
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of orders.
@@ -184,6 +194,8 @@ export const listAllOrders = async (req: Request, res: Response) => {
  *         schema:
  *           type: string
  *           enum: [pending, completed, cancelled]
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: The order's status has been updated.
@@ -217,6 +229,8 @@ export const ChangeStatus = async (req: Request, res: Response) => {
  *         schema:
  *           type: string
  *           enum: [pending, completed, canceled]
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of orders for the user.

@@ -30,11 +30,6 @@ import { NotFoundException } from "../exceptions/not-found";
  *               phone:
  *                 type: string
  *                 example: "+1234567890"
- *               role:
- *                 type: string
- *                 enum: [USER, ADMIN]  
- *                 default: USER        
- *                 example: USER
  *               password:
  *                 type: string
  *                 example: "securepassword"

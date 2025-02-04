@@ -24,6 +24,8 @@ import { prismaClient } from "..";
  *               quantity:
  *                 type: number
  *                 example: 2
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Item successfully added to the cart
@@ -87,6 +89,8 @@ export const addItemToCart = async (req: Request, res: Response) => {
  *               quantity:
  *                 type: number
  *                 example: 3
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Item quantity updated
@@ -170,6 +174,8 @@ export const getCart = async (req: Request, res: Response) => {
  *         schema:
  *           type: string
  *         description: Cart item ID
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Item removed successfully

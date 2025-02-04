@@ -16,6 +16,8 @@ import { Address } from "@prisma/client";
  *     tags: [User]
  *     summary: Create a new address for the user
  *     description: Create an address linked to the currently authenticated user
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Address created successfully
@@ -45,6 +47,8 @@ export const createAddress = async (req: Request, res: Response) => {
  *         name: id
  *         required: true
  *         description: The ID of the address to be deleted
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Address deleted successfully
@@ -74,6 +78,8 @@ export const deleteAddress = async (req: Request, res: Response) => {
  *     tags: [User]
  *     summary: Get all addresses for the authenticated user
  *     description: Retrieve all addresses associated with the currently authenticated user
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of addresses for the user
@@ -108,6 +114,8 @@ export const getAddress = async (req: Request, res: Response) => {
  *         name: id
  *         required: true
  *         description: The ID of the user to update
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -179,6 +187,8 @@ export const updateUser = async (req: Request, res: Response) => {
  *     tags: [User]
  *     summary: List users
  *     description: Get a paginated list of users
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of users
@@ -212,6 +222,8 @@ export const listUsers = async (req: Request, res: Response) => {
  *         name: id
  *         required: true
  *         description: The ID of the user to retrieve
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: The user's details
@@ -259,6 +271,8 @@ export const getUserById = async (req: Request, res: Response) => {
  *             role:
  *               type: string
  *               description: The role to assign to the user
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: User role updated successfully
@@ -266,7 +280,7 @@ export const getUserById = async (req: Request, res: Response) => {
  *         description: User not found
  */
 export const changeUserRole = async (req: Request, res: Response) => {
-  UpdateRoleSchema.parse(req.body);
+  // UpdateRoleSchema.parse(req.body);
   try {
     const user = await prismaClient.user.update({
       where: {

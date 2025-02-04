@@ -16,6 +16,8 @@ import { ErrorCodes } from "../exceptions/root";
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Product'
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Product created successfully
@@ -41,6 +43,8 @@ export const createProduct = async (req: Request, res: Response) => {
  *   get:
  *     tags: [Products]
  *     description: Get all products
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: List of products
@@ -82,6 +86,8 @@ export const getProducts = async (req: Request, res: Response) => {
  *         description: Product ID
  *         schema:
  *           type: string
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Product details
@@ -126,6 +132,8 @@ export const getProductById = async (req: Request, res: Response) => {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Product'
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Product updated successfully
@@ -171,6 +179,8 @@ export const updateProduct = async (req: Request, res: Response) => {
  *         description: Product ID
  *         schema:
  *           type: string
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       204:
  *         description: Product deleted successfully
@@ -207,6 +217,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
  *         description: Search term
  *         schema:
  *           type: string
+ *     security:
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: List of products matching the search query

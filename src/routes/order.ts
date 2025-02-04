@@ -14,24 +14,24 @@ import adminMiddleware from "../middlewares/admin";
 
 const orderRoutes: Router = Router();
 
-orderRoutes.post("/create", [authMiddleware], errorHandler(createOrder));
-orderRoutes.get("/getAll", [authMiddleware], errorHandler(getOrders));
-orderRoutes.get("/get/:id", [authMiddleware], errorHandler(getOrderById));
-orderRoutes.delete("/:id/cancel", [authMiddleware], errorHandler(cancelOrder));
+orderRoutes.post("/create", authMiddleware, errorHandler(createOrder));
+orderRoutes.get("/getAll", authMiddleware, errorHandler(getOrders));
+orderRoutes.get("/get/:id", authMiddleware, errorHandler(getOrderById));
+orderRoutes.delete("/:id/cancel", authMiddleware, errorHandler(cancelOrder));
 orderRoutes.get(
   "/",
-  [authMiddleware, adminMiddleware],
+  authMiddleware, adminMiddleware,
   errorHandler(listAllOrders)
 );
 
 orderRoutes.get(
   "/:id/status",
-  [authMiddleware, adminMiddleware],
+  authMiddleware, adminMiddleware,
   errorHandler(ChangeStatus)
 );
 orderRoutes.get(
   "/orderByUser/:id",
-  [authMiddleware, adminMiddleware],
+  authMiddleware, adminMiddleware,
   errorHandler(listUserOrders)
 );
 
