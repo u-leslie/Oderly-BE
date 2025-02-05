@@ -36,10 +36,79 @@ import { ErrorCodes } from "../exceptions/root";
  */
 export const createOrder = async (req: Request, res: Response) => {
   return await prismaClient.$transaction(async (tx) => {
-    // Function logic
+    if (!req.user) {
+      throw new NotFoundException(
+        "User not found",
+        ErrorCodes.USER_DOES_NOT_EXISTS
+      );
+    }
+
+    const cartItems = await tx.cartItem.findMany({
+      where: {
+        userId: req.user?.id,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    if (cartItems.length === 0) {
+      return res.json({ message: "No cart items found" });
+    }
+
+    const price = cartItems.reduce((prev, current) => {
+      return prev + current.quantity * current.product.price;
+    }, 0);
+
+    if (!req.user.shippingAddressId) {
+      throw new NotFoundException(
+        "Address not found",
+        ErrorCodes.ADDRESS_NOT_FOUND
+      );
+    }
+
+    const address = await tx.address.findFirst({
+      where: {
+        id: req.user.shippingAddressId,
+      },
+    });
+
+    if (!address) {
+      throw new NotFoundException(
+        "Address not found",
+        ErrorCodes.ADDRESS_NOT_FOUND
+      );
+    }
+
+    const order = await tx.order.create({
+      data: {
+        userId: req.user.id,
+        netAmount: price,
+        address: address.formattedAddress,
+        products: {
+          create: cartItems.map((cart) => ({
+            productId: cart.productId,
+            quantity: cart.quantity,
+          })),
+        },
+      },
+    });
+
+    await tx.orderEvent.create({
+      data: {
+        orderId: order.id,
+      },
+    });
+
+    await tx.cartItem.deleteMany({
+      where: {
+        userId: req.user?.id,
+      },
+    });
+
+    return res.json({ message: "Order placed successfully", order });
   });
 };
-
 /**
  * @swagger
  * /orders/getAll:
@@ -77,7 +146,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /orders/{orderId}/cancel:
+ * /orders/cancel/{orderId}:
  *   put:
  *     tags: [Order]
  *     summary: Cancel an order
@@ -99,7 +168,38 @@ export const getOrders = async (req: Request, res: Response) => {
  */
 export const cancelOrder = async (req: Request, res: Response) => {
   return await prismaClient.$transaction(async (tx) => {
-    // Function logic
+    try {
+      const existingOrder = await tx.order.findUnique({
+        where: { id: req.params.id },
+      });
+
+      if (!existingOrder) {
+        throw new NotFoundException(
+          "Order not found",
+          ErrorCodes.ORDER_NOT_FOUND
+        );
+      }
+
+      const order = await tx.order.update({
+        where: { id: req.params.id },
+        data: { status: "CANCELLED" },
+      });
+
+      await tx.orderEvent.create({
+        data: {
+          orderId: order.id,
+          status: "CANCELLED",
+        },
+      });
+
+      res.json({ message: "Order cancelled successfully", order });
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      throw new NotFoundException(
+        "Order not found",
+        ErrorCodes.ORDER_NOT_FOUND
+      );
+    }
   });
 };
 
@@ -131,6 +231,7 @@ export const getOrderById = async (req: Request, res: Response) => {
       where: { id: req.params.orderId },
       include: { products: true, events: true },
     });
+      res.json(order);
   } catch (error) {
     throw new NotFoundException("Order not found", ErrorCodes.ORDER_NOT_FOUND);
   }
@@ -150,7 +251,7 @@ export const getOrderById = async (req: Request, res: Response) => {
  *         description: Filter orders by their status.
  *         schema:
  *           type: string
- *           enum: [pending, delivered, cancelled]
+ *           enum: [PENDING,ACCEPTED,OUT_FOR_DELIVERY,DELIVERED,CANCELLED]
  *     security:
  *       - BearerAuth: []
  *     responses:
@@ -163,7 +264,7 @@ export const listAllOrders = async (req: Request, res: Response) => {
   let whereClause = {};
   const status = req.params.status;
   if (status) {
-    whereClause = { status };
+    whereClause =  status ;
   }
   const orders = await prismaClient.order.findMany({
     where: whereClause,
@@ -175,7 +276,7 @@ export const listAllOrders = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /orders/{id}/status:
+ * /orders/status/{id}:
  *   put:
  *     tags: [Order]
  *     summary: Change the status of an order
@@ -193,7 +294,7 @@ export const listAllOrders = async (req: Request, res: Response) => {
  *         description: The new status of the order.
  *         schema:
  *           type: string
- *           enum: [pending, completed, cancelled]
+ *           enum: [  PENDING,ACCEPTED,OUT_FOR_DELIVERY,DELIVERED,CANCELLED]
  *     security:
  *       - BearerAuth: []
  *     responses:
@@ -204,7 +305,23 @@ export const listAllOrders = async (req: Request, res: Response) => {
  */
 export const ChangeStatus = async (req: Request, res: Response) => {
   return await prismaClient.$transaction(async (tx) => {
-    // Function logic
+    try {
+      const order = await tx.order.update({
+        where: { id: req.params.id },
+        data: { status: req.body.status },
+      });
+
+      await tx.orderEvent.create({
+        data: { orderId: order.id, status: req.body.status },
+      });
+
+      res.json(order);
+    } catch (error) {
+      throw new NotFoundException(
+        "Order not found",
+        ErrorCodes.ORDER_NOT_FOUND
+      );
+    }
   });
 };
 
@@ -228,7 +345,7 @@ export const ChangeStatus = async (req: Request, res: Response) => {
  *         description: Optional filter for order status.
  *         schema:
  *           type: string
- *           enum: [pending, completed, canceled]
+ *           enum: [  PENDING,ACCEPTED,OUT_FOR_DELIVERY,DELIVERED,CANCELLED]
  *     security:
  *       - BearerAuth: []
  *     responses:

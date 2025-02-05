@@ -17,16 +17,17 @@ const orderRoutes: Router = Router();
 orderRoutes.post("/create", authMiddleware, errorHandler(createOrder));
 orderRoutes.get("/getAll", authMiddleware, errorHandler(getOrders));
 orderRoutes.get("/get/:id", authMiddleware, errorHandler(getOrderById));
-orderRoutes.delete("/:id/cancel", authMiddleware, errorHandler(cancelOrder));
+orderRoutes.put("/cancel/:id", authMiddleware, errorHandler(cancelOrder));
 orderRoutes.get(
   "/",
   authMiddleware, adminMiddleware,
   errorHandler(listAllOrders)
 );
 
-orderRoutes.get(
-  "/:id/status",
-  authMiddleware, adminMiddleware,
+orderRoutes.put(
+  "/status/:id",
+  authMiddleware,
+  adminMiddleware,
   errorHandler(ChangeStatus)
 );
 orderRoutes.get(
