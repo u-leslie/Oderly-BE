@@ -16,11 +16,12 @@ export const AddressSchema = z.object({
 })
 
 export const UpdatedUserSchema = z.object({
-    name: z.string().optional(),
-    billingAddress: z.string().optional(),
-    shippingAddress: z.string().optional(),
+    username: z.string().optional(),
+    billingAddressId: z.string().optional(),
+    shippingAddressId: z.string().optional(),
 })
 
+
 export const UpdateRoleSchema = z.object({
-    role: z.string(),
-})
+  role: z.enum(["ADMIN", "USER"]),
+});

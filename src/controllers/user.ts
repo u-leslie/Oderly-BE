@@ -11,19 +11,51 @@ import { Address } from "@prisma/client";
 
 /**
  * @swagger
- * user/address:
+ * /user/address:
  *   post:
  *     tags: [User]
  *     summary: Create a new address for the user
- *     description: Create an address linked to the currently authenticated user
+ *     description: Create an address linked to the currently authenticated user.
  *     security:
  *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               street:
+ *                 type: string
+ *                 example: "123 Main Street"
+ *                 description: The street name and number.
+ *               city:
+ *                 type: string
+ *                 example: "New York"
+ *                 description: The city of the address.
+ *               state:
+ *                 type: string
+ *                 example: "NY"
+ *                 description: The state or province.
+ *               zipCode:
+ *                 type: string
+ *                 example: "10001"
+ *                 description: The postal or ZIP code.
+ *               country:
+ *                 type: string
+ *                 example: "USA"
+ *                 description: The country name.
  *     responses:
- *       200:
+ *       201:
  *         description: Address created successfully
  *       400:
  *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized access
+ *       500:
+ *         description: Internal server error
  */
+
 export const createAddress = async (req: Request, res: Response) => {
   AddressSchema.parse(req.body);
   const address = await prismaClient.address.create({
@@ -37,7 +69,7 @@ export const createAddress = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * user/address/{id}:
+ * /user/address/{id}:
  *   delete:
  *     tags: [User]
  *     summary: Delete an address
@@ -73,7 +105,7 @@ export const deleteAddress = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * user/address:
+ * /user/address:
  *   get:
  *     tags: [User]
  *     summary: Get all addresses for the authenticated user
@@ -104,18 +136,41 @@ export const getAddress = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * update/user/{id}:
+ * /user/update/user/{id}:
  *   put:
  *     tags: [User]
  *     summary: Update user information
- *     description: Update user profile including address changes and roles
+ *     description: Update user profile including address changes, roles, and contact details.
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         schema:
+ *           type: string
  *         description: The ID of the user to update
  *     security:
  *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "JohnDoe"
+ *                 description: The new username of the user
+ *               shippingAddressId:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "550e8400-e29b-41d4-a716-446655440000"
+ *                 description: ID of the shipping address
+ *               billingAddressId:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "110e8400-e29b-41d4-a716-556655440001"
+ *                 description: ID of the billing address
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -123,17 +178,22 @@ export const getAddress = async (req: Request, res: Response) => {
  *         description: Invalid input data
  *       404:
  *         description: User or address not found
+ *       401:
+ *         description: Unauthorized access
+ *       500:
+ *         description: Internal server error
  */
+
 export const updateUser = async (req: Request, res: Response) => {
   const validatedData = UpdatedUserSchema.parse(req.body);
-  let shipmentAddress: Address;
-  let billingAddress: Address;
+  let shipmentAddressId: Address;
+  let billingAddressId: Address;
 
-  if (validatedData.shippingAddress) {
+  if (validatedData.shippingAddressId) {
     try {
-      shipmentAddress = await prismaClient.address.findFirstOrThrow({
+      shipmentAddressId = await prismaClient.address.findFirstOrThrow({
         where: {
-          id: validatedData.shippingAddress,
+          id: validatedData.shippingAddressId,
         },
       });
     } catch (error) {
@@ -143,7 +203,7 @@ export const updateUser = async (req: Request, res: Response) => {
       );
     }
 
-    if (shipmentAddress.userId !== req.user?.id) {
+    if (shipmentAddressId.userId !== req.user?.id) {
       return new NotFoundException(
         "Address does not belong to this user",
         ErrorCodes.ADDRESS_N0T_FOR_USER
@@ -151,11 +211,11 @@ export const updateUser = async (req: Request, res: Response) => {
     }
   }
 
-  if (validatedData.billingAddress) {
+  if (validatedData.billingAddressId) {
     try {
-      billingAddress = await prismaClient.address.findFirstOrThrow({
+      billingAddressId = await prismaClient.address.findFirstOrThrow({
         where: {
-          id: validatedData.billingAddress,
+          id: validatedData.billingAddressId,
         },
       });
     } catch (error) {
@@ -165,7 +225,7 @@ export const updateUser = async (req: Request, res: Response) => {
       );
     }
 
-    if (billingAddress.userId !== req.user?.id) {
+    if (billingAddressId.userId !== req.user?.id) {
       return new NotFoundException(
         "Address does not belong to this user",
         ErrorCodes.ADDRESS_N0T_FOR_USER
@@ -249,6 +309,7 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+
 /**
  * @swagger
  * /user/{id}/role:
@@ -260,27 +321,37 @@ export const getUserById = async (req: Request, res: Response) => {
  *       - in: path
  *         name: id
  *         required: true
- *         description: The ID of the user whose role to update
- *       - in: body
- *         name: role
- *         required: true
- *         description: The new role of the user
  *         schema:
- *           type: object
- *           properties:
- *             role:
- *               type: string
- *               description: The role to assign to the user
+ *           type: string
+ *         description: The ID of the user whose role is to be updated
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: 
+ *               - role  # Ensures 'role' is required in Swagger
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [ADMIN, USER] 
+ *                 description: The role to assign to the user
  *     security:
- *       - BearerAuth: []
+ *       - BearerAuth: []  
  *     responses:
  *       200:
  *         description: User role updated successfully
+ *       400:
+ *         description: Invalid input
  *       404:
  *         description: User not found
+ *       500:
+ *         description: Internal server error
  */
+
 export const changeUserRole = async (req: Request, res: Response) => {
-  // UpdateRoleSchema.parse(req.body);
+  UpdateRoleSchema.parse(req.body);
   try {
     const user = await prismaClient.user.update({
       where: {
